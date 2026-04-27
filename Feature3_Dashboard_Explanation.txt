@@ -1,0 +1,21 @@
+# Feature 3 Explanation: Interactive AI Dashboard
+
+## What is this feature?
+This is the final component for Phase 1: a beautiful, interactive **Web Dashboard** (`src/dashboard.py`).
+Instead of running scripts in a black terminal window, this dashboard puts everything into a modern website format so evaluators can visually see your AI in action. We used a Python library called **Streamlit** to build this UI.
+
+## How the Dashboard Works (Step-by-Step for your understanding)
+
+### 1. Two-Column Layout
+The website is split perfectly down the middle to showcase the two separate technologies you built for Phase 1:
+- **Left Column (NLP Risk Scorer):** This hooks up to your `nlp_scorer.py`. It has a text box where evaluators can type any fake news headline they want. When they click the "Analyze" button, the dashboard runs the FinBERT model in the background and prints out the Risk Score, Sentiment, and Predicted Price Trend.
+- **Right Column (LSTM Price Forecast):** This hooks up to your `price_predictor.py`. It runs the neural network in the background and uses a library called `plotly` to draw a beautiful, interactive graph. The blue line shows the "past" 30 days of oil prices, and the dotted red line shows what the AI predicts for the "future" 30 days.
+
+### 2. Caching for Speed (`@st.cache_resource`)
+Machine Learning models are heavy. If the website had to reload the FinBERT NLP model and retrain the LSTM neural network every time you clicked a button, it would take 30 seconds to load. 
+To fix this, I added `@st.cache_resource` above the loading functions. This tells the website to load the AI into the computer's memory *once* when you first open the site. After that, testing headlines happens instantly.
+
+## How it fits into the overall project:
+This dashboard perfectly wraps up Phase 1. 
+You can now open this website in front of your evaluators and say: 
+*"As you can see, for Phase 1 we have successfully built our two core engines: the Geopolitical Text Analyzer (left) and the Time-Series Forecaster (right). For Phase 2, we will integrate them so that the text box on the left will directly alter the red graph on the right in real-time."*
