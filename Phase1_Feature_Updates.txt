@@ -1,0 +1,18 @@
+# Phase 1 Feature Updates
+This file will track all the new features and components added for Phase 1 of the Oil & Gas Forecaster.
+
+## Update 1: Project Initialization & NLP Risk Scorer Base
+**Date**: April 27, 2026
+
+**What was added:**
+1. **Git Repository Setup**: Initialized a local Git repository in the `OilGas_Forecaster` directory to keep track of all code changes cleanly.
+2. **Dependencies (`requirements.txt`)**: Set up the essential Python libraries needed for Phase 1. This includes `transformers` (for NLP), `torch` (backend for NLP), and `pandas`/`scikit-learn` (for data manipulation).
+3. **Geopolitical Risk Scorer (`src/nlp_scorer.py`)**: 
+   - Created the baseline Proof of Concept for the NLP engine.
+   - **How it works:** It uses `FinBERT`, a specialized AI model trained on financial and economic text. 
+   - Instead of basic sentiment (where a production cut might just be labeled "negative"), the script contains logic specifically tailored for oil markets. For example, if it detects negative supply news (like a war or OPEC cut), it automatically flags it as a "HIGH RISK / SUPPLY SHOCK" and correctly predicts the price trend as "UPWARDS (Bullish)".
+   - Included a few test headlines in the script so you can demonstrate to the evaluators exactly how the model translates text into actionable price intelligence.
+
+**What to do next:**
+You will need to create a remote repository on your GitHub account and push this local code. 
+Next steps for us will be to add the historical time-series data loader and a baseline numerical forecasting model (LSTM/Prophet).
