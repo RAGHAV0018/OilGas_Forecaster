@@ -20,24 +20,26 @@ class GeopoliticalRiskScorer:
         confidence = result['score']
         
         # Translating Financial Sentiment to Oil Price Impact
-        # If the financial sentiment is negative (e.g. "war breaks out", "supply drops"), 
-        # it usually means oil prices will surge.
         if sentiment == 'negative':
             impact = "HIGH RISK / SUPPLY SHOCK"
             price_trend = "UPWARDS (Bullish)"
+            reasoning = "Negative financial or geopolitical events typically indicate supply chain disruptions or conflict. This reduces global oil supply, creating upward pressure on prices."
         elif sentiment == 'positive':
             impact = "STABLE / OVERSUPPLY"
             price_trend = "DOWNWARDS (Bearish)"
+            reasoning = "Positive market news often correlates with increased stability, oversupply, or diplomatic resolutions. This eases market tension, leading to potential price drops."
         else:
             impact = "NEUTRAL"
             price_trend = "STABLE"
+            reasoning = "This event does not indicate a clear disruption to global supply or demand. Energy markets are expected to absorb this news without significant volatility."
 
         return {
             "Headline": headline,
             "Raw_Sentiment": sentiment.upper(),
             "Confidence": round(confidence * 100, 2),
             "Geopolitical_Impact": impact,
-            "Predicted_Price_Trend": price_trend
+            "Predicted_Price_Trend": price_trend,
+            "Reasoning": reasoning
         }
 
 if __name__ == "__main__":

@@ -47,76 +47,113 @@ with st.spinner("Loading AI Models... (This might take a few seconds on first ru
     historical_df, future_predictions = train_lstm_model()
 
 # -------------------------------------------------------------
-# UI LAYOUT: TWO COLUMNS
+# TOP NAVIGATION TABS
 # -------------------------------------------------------------
-col1, col2 = st.columns([1, 1])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 Main Dashboard", 
+    "📰 News Intelligence", 
+    "📈 Forecasting Engine", 
+    "🛠️ Scenario Simulator", 
+    "ℹ️ About"
+])
 
-# --- COLUMN 1: NLP RISK SCORER ---
-with col1:
-    st.header("📰 Geopolitical Risk Scorer")
-    st.write("Test the NLP Model by entering a simulated news headline below:")
+# =============================================================
+# TAB 1: MAIN DASHBOARD (Phase 1 Focus)
+# =============================================================
+with tab1:
+    st.markdown("### System Overview")
+    st.info("Welcome to the Phase 1 Command Center. Use the tabs above to explore future Phase 2 modules.")
     
-    # Text input for user
-    user_headline = st.text_area(
-        "Enter News Headline:",
-        "OPEC announces unexpected cut to oil production by 2 million barrels per day, citing market instability."
-    )
-    
-    if st.button("Analyze Impact"):
-        with st.spinner("Analyzing text with FinBERT..."):
-            result = nlp_scorer.analyze_headline(user_headline)
-            
-            st.markdown("### Analysis Results:")
-            st.info(f"**Detected Sentiment:** {result['Raw_Sentiment']} (Confidence: {result['Confidence']}%)")
-            
-            if "HIGH RISK" in result['Geopolitical_Impact']:
-                st.error(f"**Geopolitical Impact:** {result['Geopolitical_Impact']}")
-            else:
-                st.success(f"**Geopolitical Impact:** {result['Geopolitical_Impact']}")
+    col1, col2 = st.columns([1, 1])
+
+    # --- COLUMN 1: NLP RISK SCORER ---
+    with col1:
+        st.header("📰 Geopolitical Risk Scorer")
+        st.write("Test the NLP Model by entering a simulated news headline below:")
+        
+        user_headline = st.text_area(
+            "Enter News Headline:",
+            "OPEC announces unexpected cut to oil production by 2 million barrels per day, citing market instability."
+        )
+        
+        if st.button("Analyze Impact"):
+            with st.spinner("Analyzing text with FinBERT..."):
+                result = nlp_scorer.analyze_headline(user_headline)
                 
-            st.warning(f"**Predicted Price Trend:** {result['Predicted_Price_Trend']}")
+                st.markdown("### Analysis Results:")
+                st.info(f"**Detected Sentiment:** {result['Raw_Sentiment']} (Confidence: {result['Confidence']}%)")
+                
+                if "HIGH RISK" in result['Geopolitical_Impact']:
+                    st.error(f"**Geopolitical Impact:** {result['Geopolitical_Impact']}")
+                else:
+                    st.success(f"**Geopolitical Impact:** {result['Geopolitical_Impact']}")
+                    
+                st.warning(f"**Predicted Price Trend:** {result['Predicted_Price_Trend']}")
+                
+                st.markdown("#### 🧠 AI Reasoning: Why This Prediction?")
+                st.write(f"*{result['Reasoning']}*")
 
-# --- COLUMN 2: LSTM PRICE PREDICTIONS ---
-with col2:
-    st.header("📈 LSTM Price Prediction")
-    st.write("30-Day Forecast based on Historical Data Patterns (Phase 1 Base Model)")
-    
-    # Prepare data for plotting
-    last_30_history = historical_df.tail(30)
-    
-    # Generate future dates
-    last_date = historical_df.index[-1]
-    future_dates = [last_date + timedelta(days=i) for i in range(1, 31)]
-    
-    # Create Plotly Graph
-    fig = go.Figure()
-    
-    # Plot historical
-    fig.add_trace(go.Scatter(
-        x=last_30_history.index, 
-        y=last_30_history['Price'],
-        mode='lines+markers',
-        name='Historical Prices (Past 30 Days)',
-        line=dict(color='blue')
-    ))
-    
-    # Plot predicted
-    fig.add_trace(go.Scatter(
-        x=future_dates, 
-        y=future_predictions,
-        mode='lines+markers',
-        name='LSTM Forecast (Next 30 Days)',
-        line=dict(color='red', dash='dash')
-    ))
-    
-    fig.update_layout(
-        title="Oil Price Forecast",
-        xaxis_title="Date",
-        yaxis_title="Price ($/Barrel)",
-        height=400,
-        margin=dict(l=0, r=0, t=40, b=0)
-    )
-    
-    # Display Graph
-    st.plotly_chart(fig, use_container_width=True)
+    # --- COLUMN 2: LSTM PRICE PREDICTIONS ---
+    with col2:
+        st.header("📈 LSTM Price Prediction")
+        st.write("30-Day Forecast based on 5 Years of Historical Data")
+        
+        last_30_history = historical_df.tail(30)
+        last_date = historical_df.index[-1]
+        future_dates = [last_date + timedelta(days=i) for i in range(1, 31)]
+        
+        fig = go.Figure()
+        
+        fig.add_trace(go.Scatter(
+            x=last_30_history.index, 
+            y=last_30_history['Price'],
+            mode='lines+markers',
+            name='Historical Prices (Past 30 Days)',
+            line=dict(color='blue')
+        ))
+        
+        fig.add_trace(go.Scatter(
+            x=future_dates, 
+            y=future_predictions,
+            mode='lines+markers',
+            name='LSTM Forecast (Next 30 Days)',
+            line=dict(color='red', dash='dash')
+        ))
+        
+        fig.update_layout(
+            title="WTI Crude Oil Price Forecast",
+            xaxis_title="Date",
+            yaxis_title="Price ($/Barrel)",
+            height=400,
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+# =============================================================
+# OTHER TABS (Phase 2 Placeholders)
+# =============================================================
+with tab2:
+    st.markdown("### Live News Intelligence Feed")
+    st.write("*(Phase 2 Integration)*")
+    st.write("This module will display a continuous live stream of news from Reuters/GDELT, mapped automatically to risk scores and sentiment trends without manual input.")
+
+with tab3:
+    st.markdown("### Long-Term 3-5 Year Forecasting")
+    st.write("*(Phase 2 Integration)*")
+    st.write("This module will feature our Prophet/XGBoost models to predict multi-year structural trends in the Indian energy market.")
+
+with tab4:
+    st.markdown("### What-If Scenario Simulator")
+    st.write("*(Phase 2 Integration)*")
+    st.write("Manually adjust variables like 'OPEC Production Quotas' or 'INR-USD Exchange Rate' sliders to simulate artificial price shocks and test model resilience.")
+
+with tab5:
+    st.markdown("### About the Project")
+    st.write("**Multi-Signal AI Framework for Oil & Natural Gas Price Forecasting**")
+    st.write("Using Geopolitical and Macroeconomic Indicators.")
+    st.markdown("---")
+    st.write("**Team Members:** Kriti Agarwal, Shamit Sinha, Yash Agarwal, Raghav Somani")
+    st.write("**Mentor:** Prof. Deepthi L")
+    st.write("**Panel Member:** Dr. G S Nagaraja")
 
