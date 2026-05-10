@@ -19,8 +19,7 @@ st.set_page_config(
 )
 
 # Main Title
-st.title("🛢️ Multi-Signal AI Framework for Oil Price Forecasting")
-st.markdown("### Phase 1 Proof of Concept: Geopolitical Sentiment & LSTM Prediction")
+st.title("🛢️ GeoCognitive Energy Intelligence System")
 
 # Initialize models only once using Streamlit caching
 @st.cache_resource
@@ -121,11 +120,3 @@ with col2:
     # Display Graph
     st.plotly_chart(fig, use_container_width=True)
 
-# -------------------------------------------------------------
-# FOOTER / PHASE 2 TEASER
-# -------------------------------------------------------------
-st.markdown("---")
-st.markdown("""
-**Note for Phase 2:** Currently, these two models are running side-by-side independently. 
-In Phase 2, the *Geopolitical Impact Score* from the left will be fed directly into the *LSTM Math Model* on the right to alter the red trajectory line in real-time, creating our true Multi-Signal Hybrid Framework.
-""")

@@ -5,27 +5,52 @@ import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import datetime
+import yfinance as yf
 
 # -------------------------------------------------------------
-# 1. DATA GENERATION (For Phase 1 Proof of Concept)
-# In Phase 2, this will be replaced with real PPAC/OPEC CSV data.
-# Here we generate synthetic daily oil prices mimicking real trends.
+# 1. REAL DATA FETCHER - WTI Crude Oil from Yahoo Finance
+#    Ticker "CL=F" = WTI Crude Oil Futures (the global benchmark price)
+#    This fetches REAL daily closing prices going back 5 years.
+#    Falls back to synthetic data if internet is unavailable.
 # -------------------------------------------------------------
-def generate_mock_oil_data(days=1000):
-    print("Generating historical oil price data...")
-    np.random.seed(42)
-    base_price = 75.0
-    prices = [base_price]
-    for _ in range(days - 1):
-        # Random walk with slight upward drift and some volatility
-        volatility = np.random.normal(loc=0.01, scale=1.5)
-        new_price = prices[-1] + volatility
-        prices.append(max(20.0, new_price)) # prices don't drop below $20
-    
-    dates = pd.date_range(end=datetime.date.today(), periods=days)
-    df = pd.DataFrame({'Date': dates, 'Price': prices})
-    df.set_index('Date', inplace=True)
-    return df
+def generate_mock_oil_data(days=500):
+    """
+    Fetches real WTI Crude Oil price data from Yahoo Finance.
+    The function name is kept as-is so dashboard.py requires no changes.
+    'days' parameter is ignored — we always fetch 5 years of real data.
+    """
+    print("Fetching real WTI Crude Oil prices from Yahoo Finance...")
+    try:
+        # CL=F is the Yahoo Finance ticker for WTI Crude Oil Futures
+        ticker = yf.Ticker("CL=F")
+        df_raw = ticker.history(period="5y")  # 5 years of real daily data
+
+        if df_raw.empty:
+            raise ValueError("Yahoo Finance returned empty data.")
+
+        # Keep only the closing price and rename to 'Price'
+        df = df_raw[['Close']].rename(columns={'Close': 'Price'})
+        df.index = pd.to_datetime(df.index).tz_localize(None)  # remove timezone
+
+        print(f"Successfully loaded {len(df)} days of real WTI crude oil data.")
+        print(f"Date range: {df.index[0].date()} to {df.index[-1].date()}")
+        print(f"Latest price: ${df['Price'].iloc[-1]:.2f} per barrel\n")
+        return df
+
+    except Exception as e:
+        # Graceful fallback: if no internet, use synthetic data
+        print(f"Could not fetch real data ({e}). Falling back to synthetic data...")
+        np.random.seed(42)
+        base_price = 75.0
+        prices = [base_price]
+        for _ in range(days - 1):
+            volatility = np.random.normal(loc=0.01, scale=1.5)
+            new_price = prices[-1] + volatility
+            prices.append(max(20.0, new_price))
+        dates = pd.date_range(end=datetime.date.today(), periods=days)
+        df = pd.DataFrame({'Date': dates, 'Price': prices})
+        df.set_index('Date', inplace=True)
+        return df
 
 # -------------------------------------------------------------
 # 2. LSTM MODEL DEFINITION
