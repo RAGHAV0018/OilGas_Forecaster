@@ -1,126 +1,150 @@
 ========================================================================
 GEOCOGNITIVE ENERGY INTELLIGENCE SYSTEM
-EXTREME DETAIL: Complete Project & Architecture Guide (Phase 1)
+EXTREME DETAIL: Line-by-Line Code Explanation Guide
 ========================================================================
 
-This document is the master blueprint for your Phase 1 Evaluation. It breaks down every single tab of your platform, what it means for the user, and exactly how the underlying Python code works to make it happen.
-
----
-HOW TO RUN THE PLATFORM
----
-Terminal Command: `streamlit run "OilGas_Forecaster\src\dashboard.py"`
-Browser URL: http://localhost:8501
-Dependencies: installed via `pip install -r requirements.txt` (pandas, numpy, torch, transformers, yfinance, plotly, streamlit, scikit-learn).
+This document contains a literal line-by-line and block-by-block breakdown of every single Python file in your project. Read this to understand exactly what every single word of your code is doing.
 
 ========================================================================
-TAB 1: MAIN DASHBOARD (SYSTEM OVERVIEW)
+FILE 1: src/nlp_scorer.py (The Text Brain)
 ========================================================================
+This file is responsible for taking a news headline and using Artificial Intelligence to determine if the news will make oil prices go up or down.
 
-WHAT IT IS:
-This is the landing page of your application. It provides a clean, dark-themed introduction to the platform, setting the stage for the evaluators. 
+IMPORTS:
+Line 1: `import warnings` -> Imports Python's built-in warnings library.
+Line 2: `warnings.filterwarnings('ignore')` -> Tells Python to hide annoying warning messages in the terminal so the output stays clean.
+Line 3: `from transformers import pipeline` -> Imports the HuggingFace "pipeline", which is the easiest way to download and use pre-trained AI models like FinBERT.
 
-WHAT IT MEANS:
-Instead of just showing random charts, this tab proves you built a "Platform Architecture". It explains that the system is a hybrid model integrating Natural Language Processing (NLP) and Long Short-Term Memory (LSTM) networks.
+CLASS DEFINITION:
+Line 5: `class GeopoliticalRiskScorer:` -> Creates a blueprint (class) for our NLP system.
+Line 6: `def __init__(self):` -> The constructor method. This runs automatically when the class is initialized.
+Line 7: `self.analyzer = pipeline("sentiment-analysis", model="ProsusAI/finbert")` -> This is the core AI. It downloads the "FinBERT" model (a version of Google's BERT trained by ProsusAI specifically on financial news) and assigns it to `self.analyzer`.
 
-THE CODE BEHIND IT (src/dashboard.py):
-- Lines 1-19: We import `streamlit` as `st` and configure the page layout to "wide" mode with a dark futuristic theme using custom CSS (Lines 22-48). We specifically styled the metric cards to have a neon blue glow (`#00d4ff`) and built a custom tab-navigation menu using HTML/CSS injection.
-- Lines 81-87: We define `tab1, tab2, tab3, tab4, tab5 = st.tabs([...])`. This Streamlit function creates the top navigation bar. Everything inside `with tab1:` is what renders on this screen.
+ANALYSIS FUNCTION:
+Line 9: `def analyze_headline(self, headline):` -> A function that takes a text `headline` as input.
+Line 15: `result = self.analyzer(headline)[0]` -> Feeds the headline into FinBERT. FinBERT returns a list of dictionaries. We grab the first item `[0]`.
+Line 16: `sentiment = result['label']` -> Extracts the word 'positive', 'negative', or 'neutral' from FinBERT's output.
+Line 17: `confidence = result['score']` -> Extracts the mathematical confidence score (e.g., 0.98 means 98% sure).
 
-========================================================================
-TAB 2: GEOPOLITICAL RISK SCORER (THE TEXT BRAIN)
-========================================================================
+REVERSE SENTIMENT MAPPING LOGIC:
+Line 20: `if sentiment == 'negative':` -> If FinBERT thinks the news is bad for the general economy (e.g., War, pandemic)...
+Line 21: `impact = "HIGH RISK / SUPPLY SHOCK"` -> We translate "bad news" into "High Geopolitical Risk" for oil.
+Line 22: `price_trend = "UPWARDS (Bullish)"` -> Because oil is a commodity, panic and supply shocks cause prices to surge UPWARDS.
+Line 23: `reasoning = "Negative financial..."` -> Generates an English explanation for the dashboard.
+Line 24: `elif sentiment == 'positive':` -> If FinBERT thinks the news is good (e.g., Peace treaties, booming economy)...
+Line 25: `impact = "STABLE / OVERSUPPLY"` -> We translate "good news" into "Stable Markets".
+Line 26: `price_trend = "DOWNWARDS (Bearish)"` -> When markets are calm and oil is plentiful, prices drop DOWNWARDS.
+Line 27: `reasoning = "Positive market news..."` -> Generates the English explanation.
+Line 28: `else:` -> If FinBERT is neutral.
+Line 29: `impact = "NEUTRAL"` -> No major risk.
+Line 30: `price_trend = "STABLE"` -> Prices won't move much.
+Line 31: `reasoning = "This event does not indicate..."` -> Generates the English explanation.
 
-WHAT IT IS:
-An interactive Natural Language Processing (NLP) interface. You type a news headline into the text box, click "Analyze", and the AI instantly reads it.
+RETURN STATEMENT:
+Lines 33-40: `return { "Headline": headline, ... }` -> Packages all these variables into a dictionary and sends it back to whoever called the function (in this case, the dashboard).
 
-WHAT IT MEANS ON THE SCREEN:
-- Detected Sentiment: FinBERT's raw mathematical evaluation of the text (Positive, Negative, Neutral).
-- Geopolitical Impact: We mapped the sentiment to actual oil market realities (e.g., Negative news = Supply Shock).
-- Predicted Price Trend: Upwards (Bullish) or Downwards (Bearish).
-- AI Reasoning: An automatically generated English explanation defending the model's logic.
+TESTING BLOCK:
+Line 42: `if __name__ == "__main__":` -> This block only runs if you run this file directly in the terminal (not when imported by the dashboard).
+Lines 43-46: Creates a sample headline and prints the analysis to the terminal for debugging purposes.
 
-THE CODE BEHIND IT (src/nlp_scorer.py):
-This tab is powered entirely by the `GeopoliticalRiskScorer` class.
-- The Model: In the `__init__` function, we load `ProsusAI/finbert` using the HuggingFace `pipeline` library. FinBERT is a BERT model fine-tuned on millions of financial news articles.
-- The Logic: Inside `analyze_headline(self, headline)`, the model spits out a `sentiment` and a `confidence` score.
-- The "Reverse Mapping" Code:
-  ```python
-  if sentiment == 'negative':
-      impact = "HIGH RISK / SUPPLY SHOCK"
-      price_trend = "UPWARDS (Bullish)"
-      reasoning = "Negative financial or geopolitical events typically indicate supply chain disruptions..."
-  ```
-  Why do we do this? Because in the stock market, bad news means prices drop. But in the OIL market, bad news (like a war) means supply chains break, making oil scarce, so prices GO UP. This code proves you understand domain-specific economics, not just raw coding.
-
-========================================================================
-TAB 3: LSTM FORECASTING (THE MATH BRAIN)
-========================================================================
-
-WHAT IT IS:
-The quantitative heart of the system. It fetches 5 years of real WTI Crude Oil price data from the stock market, trains a neural network, and outputs a 30-day forecast.
-
-WHAT IT MEANS ON THE SCREEN:
-- Metric Cards: Glowing neon numbers showing the exact current price of WTI Crude, the 30-day forecasted price, and the exact percentage change. 
-- Interactive Chart: The blue line is the actual, historical stock market data. The red dashed line is what the AI predicts will happen next.
-
-THE CODE BEHIND IT (src/price_predictor.py):
-This is the most mathematically complex file, broken into 3 parts.
-
-1. Real Data Fetcher (`generate_mock_oil_data`):
-   - We use the `yfinance` library (Yahoo Finance).
-   - Code: `ticker = yf.Ticker("CL=F")` and `df_raw = ticker.history(period="5y")`.
-   - "CL=F" is the actual stock ticker for West Texas Intermediate (WTI) Crude Oil. 
-   - *Fail-Safe:* If the internet disconnects during your presentation, a `try/except` block automatically generates fake "random walk" data so your dashboard doesn't crash.
-
-2. Data Preparation (`prepare_data`):
-   - Code: `self.scaler.fit_transform(price_data)`
-   - Neural networks cannot understand raw dollar amounts like $85. We use Scikit-Learn's `MinMaxScaler` to squeeze all prices into decimals between -1 and 1. 
-
-3. The LSTM Architecture (`OilPriceLSTM`):
-   - We use PyTorch (`import torch.nn as nn`).
-   - The architecture is a "Direct Multi-Output" model. 
-   - Code: `self.lstm = nn.LSTM(input_size=1, hidden_size=128, num_layers=2, dropout=0.2)`
-   - This creates 2 massive layers of memory cells (128 units each). The `dropout=0.2` randomly turns off 20% of the neurons during training to prevent "overfitting" (memorizing the answers).
-   - Code: `self.fc = nn.Linear(hidden_size, output_days)`
-   - Why this is brilliant: Older AI models predict tomorrow, then use tomorrow's prediction to predict the next day. Errors pile up, resulting in a straight flat line on the graph. Our `fc` (fully connected) layer maps the final hidden state to ALL 30 DAYS AT ONCE. This prevents error accumulation and creates the realistic jagged red line on your graph.
 
 ========================================================================
-TAB 4: WHAT-IF SCENARIO SIMULATOR
+FILE 2: src/price_predictor.py (The Math Brain)
 ========================================================================
+This file fetches real stock market data and trains a Long Short-Term Memory (LSTM) neural network to predict future oil prices.
 
-WHAT IT IS:
-An interactive economic modeling tool. It allows the user to apply hypothetical macroeconomic "shocks" (like an OPEC cut) to the AI's baseline prediction.
+IMPORTS:
+Lines 1-7: Import `numpy` (math), `pandas` (tables), `torch` & `torch.nn` (PyTorch for neural networks), `MinMaxScaler` (for data scaling), `matplotlib` (for graphs), and `datetime` (for dates).
+Line 8: `import yfinance as yf` -> Imports Yahoo Finance to fetch real live stock data.
 
-WHAT IT MEANS ON THE SCREEN:
-- Sliders: You can dynamically alter OPEC Production, Global Demand, and the INR-USD exchange rate.
-- Interactive Graph: The baseline LSTM prediction turns gray. As you move the sliders, a new bright orange line dynamically calculates and redraws the new reality.
-- Indian Market Impact: It calculates exactly what the orange line means in Indian Rupees.
+REAL DATA FETCHER:
+Line 15: `def generate_mock_oil_data(days=500):` -> Despite the old name (kept so the dashboard didn't break), this fetches real data.
+Line 21: `ticker = yf.Ticker("CL=F")` -> Connects to Yahoo Finance and targets "CL=F", which is the official global stock ticker for WTI Crude Oil Futures.
+Line 22: `df_raw = ticker.history(period="5y")` -> Downloads 5 entire years of daily price history.
+Line 24: `if df_raw.empty: raise ValueError(...)` -> Checks if the internet failed or Yahoo blocked us.
+Line 27: `df = df_raw[['Close']].rename(columns={'Close': 'Price'})` -> Drops open/high/low prices and keeps only the "Closing Price".
+Line 28: `df.index = pd.to_datetime(df.index).tz_localize(None)` -> Cleans up the date timestamps.
+Line 34: `except Exception as e:` -> If the Yahoo Finance fetch fails for any reason...
+Lines 36-46: ...it mathematically generates realistic "random walk" synthetic data using `np.random.normal` so your app never crashes during a presentation.
 
-THE CODE BEHIND IT (src/dashboard.py - lines 189 to 258):
-- The Sliders: We use `st.slider()` to capture user input.
-- The Math Algorithm:
-  ```python
-  price_multiplier = 1.0 + (-opec_cut * 0.03) + (demand_shock * 0.015)
-  scenario_predictions = [price * price_multiplier for price in future_predictions]
-  ```
-- How it works: 
-  * If OPEC cuts production by 1 million barrels (`opec_cut = -1.0`), the math does `-(-1.0) * 0.03`, which is `+0.03`. It adds a 3% price surge to the baseline LSTM prediction.
-  * If demand booms by 10% (`demand_shock = 10`), it adds `10 * 0.015 = 0.15` (a 15% price surge).
-  * We then take every single day in the `future_predictions` array (from the LSTM) and multiply it by this `price_multiplier`.
-- Plotly redrawing: The Streamlit app constantly loops. The moment you touch a slider, the Python script recalculates the `scenario_predictions` array and redraws the Plotly graph in real-time. 
-- INR Translation: `(avg_scenario * inr_usd)` simply multiplies the simulated global dollar price by the current exchange rate slider to prove the project's relevance to the Indian economy.
+LSTM NEURAL NETWORK DEFINITION:
+Line 55: `class OilPriceLSTM(nn.Module):` -> Creates the PyTorch neural network class.
+Line 56: `def __init__(self, input_size=1, hidden_size=128, num_layers=2, output_days=30, dropout=0.2):` -> Setup. `input_size=1` because we only look at price. `hidden_size=128` means 128 neurons per layer. `num_layers=2` means it's a deep network with 2 LSTM layers. `output_days=30` means it will predict 30 days into the future.
+Line 62: `self.lstm = nn.LSTM(...)` -> Creates the actual LSTM layers with `dropout=0.2` (randomly turns off 20% of neurons to prevent overfitting).
+Line 67: `self.fc = nn.Linear(hidden_size, output_days)` -> A "Fully Connected" layer that maps the LSTM's brain thoughts directly to 30 output numbers (the prices).
+Line 69: `def forward(self, x):` -> Defines how data flows through the network.
+Line 70-71: `h0 = torch.zeros... c0 = torch.zeros...` -> Initializes the LSTM's short-term and long-term memory states to zero.
+Line 72: `out, _ = self.lstm(x, (h0, c0))` -> Pushes the price data `x` into the LSTM.
+Line 74: `out = self.fc(out[:, -1, :])` -> Takes only the very last thought of the LSTM and pushes it through the Fully Connected layer to get the final 30 predictions.
+
+TRAINING ENGINE:
+Line 81: `class PricePredictorEngine:` -> A manager class to handle data and training.
+Line 85: `self.scaler = MinMaxScaler(feature_range=(-1, 1))` -> Neural networks hate large numbers like 80. This scaler squishes all prices down to decimals between -1 and 1.
+Line 88: `self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.005)` -> Uses the "Adam" algorithm to adjust the neural network's weights to learn. Learning Rate (lr) is 0.005.
+
+Line 90: `def prepare_data(self, df):` -> Function to format data.
+Line 95: `for i in range(len(...) - self.seq_length - self.output_days + 1):` -> A loop that slides over the 5 years of data. It takes 30 days of past prices (X) and pairs them with the exact 30 days of future prices (y) so the model has a question (X) and an answer (y) to learn from.
+
+Line 103: `def train(self, X, y, epochs=50):` -> The learning loop. `epochs` is how many times it reviews the data.
+Line 107: `outputs = self.model(X)` -> The model takes a guess at the prices.
+Line 108: `loss = self.criterion(outputs, y)` -> Compares the guess to the real answer using Mean Squared Error.
+Line 109: `loss.backward()` -> Backpropagation. Calculates how wrong each neuron was.
+Line 110: `self.optimizer.step()` -> Adjusts the neurons to be smarter next time.
+
+Line 115: `def predict_future(self, last_sequence, days_to_predict=30):` -> Used after training to predict the actual unknown future.
+Line 117: `with torch.no_grad():` -> Tells PyTorch to stop learning/calculating gradients to save memory.
+Line 118: `preds = self.model(last_sequence.unsqueeze(0))` -> Makes the 30 predictions.
+Line 119: `predicted_prices = self.scaler.inverse_transform(...)` -> Un-squishes the decimals (-1 to 1) back into real dollar amounts (like $85).
+
 
 ========================================================================
-YOUTUBE TUTORIALS FOR YOUR EVALUATION PREP
+FILE 3: src/dashboard.py (The User Interface)
 ========================================================================
-1. LSTM Networks (StatQuest - 20 mins)
-   https://www.youtube.com/watch?v=YCzL96nL7j0
-   *Explains exactly how the memory cells in our price_predictor.py work.*
+This file uses Streamlit to build the web application, importing the NLP and LSTM files and combining them into a UI.
 
-2. Sentiment Analysis with Python & HuggingFace (Rob Mulla)
-   https://www.youtube.com/watch?v=QpzMWQvxXWk
-   *Explains how the pipeline in our nlp_scorer.py works.*
+IMPORTS & CONFIG:
+Lines 1-9: Imports streamlit, pandas, plotly (for interactive graphs), and imports our custom `GeopoliticalRiskScorer` and `PricePredictorEngine`.
+Line 14: `st.set_page_config(...)` -> Tells Streamlit to use the full width of the screen and sets the browser tab title and icon.
+Lines 22-48: `st.markdown("<style>...</style>")` -> Injects custom CSS to make the metrics glow neon blue and style the navigation tabs.
 
-3. Streamlit Crash Course
-   https://www.youtube.com/watch?v=kYJ40_aQk0A
-   *Explains how we built the web dashboard.*
+AI INITIALIZATION (CACHING):
+Line 54: `@st.cache_resource` -> A CRITICAL Streamlit command. Streamlit reruns the whole script every time you click a button. This decorator tells Streamlit to only load and train the AI models ONCE when the app first opens, saving massive amounts of time.
+Line 58: `def train_lstm_model():` -> Calls the data generator, prepares data, trains the LSTM for 10 epochs, and returns the history and predictions.
+
+UI LAYOUT (TABS):
+Line 81: `tab1, tab2, tab3, tab4, tab5 = st.tabs([...])` -> Creates the 5 top navigation buttons.
+
+TAB 1 (Overview):
+Line 92: `with tab1:` -> Code here only shows on the first tab. Uses `st.markdown` and `st.info` to print text.
+
+TAB 2 (NLP Risk Scorer):
+Line 105: `with tab2:`
+Line 109: `user_headline = st.text_area(...)` -> Creates a text box for the user to type in.
+Line 114: `if st.button("Analyze Impact"):` -> When the user clicks the button...
+Line 116: `result = nlp_scorer.analyze_headline(user_headline)` -> Sends the text to the `nlp_scorer.py` file.
+Lines 118-129: Uses `st.info`, `st.error`, and `st.success` to print out the dictionaries returned by the NLP model with pretty colored boxes.
+
+TAB 3 (LSTM Forecasting):
+Line 134: `with tab3:`
+Line 143: `current_price = last_30_history['Price'].iloc[-1]` -> Grabs the very last known real price.
+Line 144: `predicted_end_price = future_predictions[-1]` -> Grabs the price the AI predicts for Day 30.
+Line 148: `col_m1, col_m2, col_m3 = st.columns(3)` -> Creates 3 columns for metric cards.
+Line 149: `col_m1.metric(...)` -> Uses Streamlit's built-in metric UI to display the prices with green/red arrows.
+Line 156: `fig = go.Figure()` -> Initializes an empty Plotly interactive graph.
+Line 158: `fig.add_trace(...)` -> Adds the historical data to the graph as a blue line.
+Line 166: `fig.add_trace(...)` -> Adds the predicted future data to the graph as a dashed red line.
+Line 186: `st.plotly_chart(fig, ...)` -> Renders the interactive Plotly graph on the website.
+
+TAB 4 (Scenario Simulator):
+Line 191: `with tab4:` -> The live what-if simulator.
+Line 194: `col_sim1, col_sim2 = st.columns([1, 2])` -> Splits the screen: left side (width 1) for sliders, right side (width 2) for the graph.
+Line 198: `opec_cut = st.slider(...)` -> Creates the slider for OPEC cuts.
+Line 204: `demand_shock = st.slider(...)` -> Creates the slider for global demand.
+Line 210: `inr_usd = st.slider(...)` -> Creates the slider for currency exchange.
+Line 219: `price_multiplier = 1.0 + (-opec_cut * 0.03) + (demand_shock * 0.015)` -> THE MATH: Calculates a percentage multiplier based on the slider values (e.g. 1M barrel cut = +3% price).
+Line 220: `scenario_predictions = [price * price_multiplier for price in future_predictions]` -> Applies that multiplier to the AI's baseline predictions.
+Lines 224-252: Draws a new Plotly graph comparing the baseline gray line to the new simulated orange line.
+Line 257: `st.success(f"Estimated Indian Market Impact: ₹{(avg_scenario * inr_usd):,.2f}")` -> Multiplies the dollar price by the INR slider to show localized Indian cost.
+
+TAB 5 (About):
+Line 259: `with tab5:` -> Simply uses `st.write` to print your team members' names and mentors.
