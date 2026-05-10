@@ -144,13 +144,77 @@ with tab3:
     st.write("This module will feature our Prophet/XGBoost models to predict multi-year structural trends in the Indian energy market.")
 
 with tab4:
-    st.markdown("### What-If Scenario Simulator")
-    st.write("*(Phase 2 Integration)*")
-    st.write("Manually adjust variables like 'OPEC Production Quotas' or 'INR-USD Exchange Rate' sliders to simulate artificial price shocks and test model resilience.")
+    st.markdown("### 🛠️ What-If Scenario Simulator")
+    st.write("Test how hypothetical macroeconomic shocks alter the baseline LSTM trajectory.")
+    
+    col_sim1, col_sim2 = st.columns([1, 2])
+    
+    with col_sim1:
+        st.markdown("#### Scenario Parameters")
+        opec_cut = st.slider(
+            "OPEC Production Change (Million BPD)", 
+            min_value=-5.0, max_value=5.0, value=0.0, step=0.5, 
+            help="Negative = production cut (price increases). Positive = oversupply (price drops)."
+        )
+        
+        demand_shock = st.slider(
+            "Global Demand Shock (%)", 
+            min_value=-20, max_value=20, value=0, step=1, 
+            help="Positive = economic boom/demand surge. Negative = recession/demand crash."
+        )
+        
+        inr_usd = st.slider(
+            "INR-USD Exchange Rate (₹)", 
+            min_value=70.0, max_value=95.0, value=83.0, step=0.5, 
+            help="Translates the global price into Indian Rupees for local impact."
+        )
+        
+    with col_sim2:
+        # Simple heuristic mapping for simulation:
+        # 1M BPD cut = ~3% price increase. 1% demand shift = ~1.5% price shift.
+        price_multiplier = 1.0 + (-opec_cut * 0.03) + (demand_shock * 0.015)
+        scenario_predictions = [price * price_multiplier for price in future_predictions]
+        
+        fig_sim = go.Figure()
+        
+        # Base LSTM Forecast
+        fig_sim.add_trace(go.Scatter(
+            x=future_dates, 
+            y=future_predictions,
+            mode='lines',
+            name='Base LSTM Forecast (USD)',
+            line=dict(color='gray', dash='dash')
+        ))
+        
+        # Scenario Forecast
+        fig_sim.add_trace(go.Scatter(
+            x=future_dates, 
+            y=scenario_predictions,
+            mode='lines+markers',
+            name='Scenario Simulated Price (USD)',
+            line=dict(color='orange', width=3)
+        ))
+        
+        fig_sim.update_layout(
+            title="Baseline vs. Shock Simulation",
+            xaxis_title="Date",
+            yaxis_title="Price ($/Barrel)",
+            height=350,
+            margin=dict(l=0, r=0, t=40, b=0)
+        )
+        
+        st.plotly_chart(fig_sim, use_container_width=True)
+        
+        # Output Metrics
+        avg_base = sum(future_predictions) / len(future_predictions)
+        avg_scenario = sum(scenario_predictions) / len(scenario_predictions)
+        
+        st.markdown(f"**Average Base Price:** ${avg_base:.2f} &nbsp;&nbsp;|&nbsp;&nbsp; **Average Scenario Price:** ${avg_scenario:.2f}")
+        st.success(f"🇮🇳 **Estimated Indian Market Impact:** ₹{(avg_scenario * inr_usd):,.2f} per barrel")
 
 with tab5:
     st.markdown("### About the Project")
-    st.write("**Multi-Signal AI Framework for Oil & Natural Gas Price Forecasting**")
+    st.write("**GeoCognitive Energy Intelligence System**")
     st.write("Using Geopolitical and Macroeconomic Indicators.")
     st.markdown("---")
     st.write("**Team Members:** Kriti Agarwal, Shamit Sinha, Yash Agarwal, Raghav Somani")
