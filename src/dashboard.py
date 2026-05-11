@@ -79,31 +79,57 @@ with st.spinner("Initializing AI Models..."):
 # TOP NAVIGATION TABS
 # -------------------------------------------------------------
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Main Dashboard", 
-    "📰 Geopolitical Risk Scorer", 
-    "📈 LSTM Forecasting", 
-    "🛠️ Scenario Simulator", 
-    "ℹ️ About"
+    "Main Dashboard", 
+    "Geopolitical Risk Scorer", 
+    "LSTM Forecasting", 
+    "Scenario Simulator", 
+    "About"
 ])
 
 # =============================================================
 # TAB 1: MAIN DASHBOARD
 # =============================================================
 with tab1:
-    st.markdown("### 🌐 System Overview")
-    st.info("Welcome to the Phase 1 Command Center.")
-    st.write("""
-    This platform integrates **Natural Language Processing (NLP)** for geopolitical sentiment analysis 
-    and **Long Short-Term Memory (LSTM) neural networks** for mathematical time-series forecasting. 
+    st.header("🌐 System Overview")
+    st.write("Welcome to the **GeoCognitive Energy Intelligence System (Phase 1)**.")
     
-    Please use the navigation tabs above to explore the individual intelligence modules.
-    """)
+    # High-level summary cards
+    st.markdown("### 📊 System Status")
+    colA, colB, colC = st.columns(3)
+    colA.metric("NLP Text Engine", "Online", "FinBERT Active")
+    colB.metric("LSTM Math Engine", "Online", "30-Day Horizon")
+    colC.metric("Live Data Source", "WTI Crude", "Connected")
+    
+    st.markdown("---")
+    
+    st.markdown("### ⚙️ Architecture Workflow")
+    col_w1, col_w2 = st.columns(2)
+    
+    with col_w1:
+        st.markdown("""
+        **1. The Text Brain (NLP Scorer)**
+        - **Input:** Global macroeconomic & geopolitical news headlines.
+        - **Process:** FinBERT semantic sentiment classification.
+        - **Logic:** Translates financial sentiment into supply shock probability.
+        - **Output:** Bullish/Bearish qualitative market impact.
+        """)
+        
+    with col_w2:
+        st.markdown("""
+        **2. The Math Brain (LSTM Predictor)**
+        - **Input:** 5 Years of Historical Stock Market Prices.
+        - **Process:** Direct Multi-Output LSTM Neural Network.
+        - **Logic:** Learns sequential patterns, market memory, and volatility.
+        - **Output:** 30-Day quantitative baseline price forecast.
+        """)
+    
+    st.info("💡 **Navigation:** Click on the tabs above to explore each intelligence module in detail.")
 
 # =============================================================
 # TAB 2: GEOPOLITICAL RISK SCORER
 # =============================================================
 with tab2:
-    st.header("📰 Geopolitical Risk Scorer")
+    st.header("Geopolitical Risk Scorer")
     st.write("Test the NLP Model by entering a simulated news headline below:")
     
     user_headline = st.text_area(
@@ -132,7 +158,7 @@ with tab2:
 # TAB 3: LSTM FORECASTING
 # =============================================================
 with tab3:
-    st.header("📈 LSTM Price Prediction")
+    st.header("LSTM Price Prediction")
     st.write("30-Day Forecast based on 5 Years of Historical Data")
     
     last_30_history = historical_df.tail(30)
@@ -189,7 +215,7 @@ with tab3:
 # OTHER TABS (Phase 2 Placeholders)
 # =============================================================
 with tab4:
-    st.markdown("### 🛠️ What-If Scenario Simulator")
+    st.markdown("What-If Scenario Simulator")
     st.write("Test how hypothetical macroeconomic shocks alter the baseline LSTM trajectory.")
     
     col_sim1, col_sim2 = st.columns([1, 2])
@@ -265,10 +291,39 @@ with tab4:
         st.success(f"🇮🇳 **Estimated Indian Market Impact:** ₹{(avg_scenario * inr_usd):,.2f} per barrel")
 
 with tab5:
-    st.markdown("### About the Project")
-    st.write("**GeoCognitive Energy Intelligence System**")
+    st.header("ℹ️ About the Project")
+    st.markdown("### **GeoCognitive Energy Intelligence System**")
+    st.write("*A Multi-Signal AI Framework for Oil & Natural Gas Price Forecasting*")
+    
     st.markdown("---")
-    st.write("**Team Members:** Kriti Agarwal, Shamit Sinha, Yash Agarwal, Raghav Somani")
-    st.write("**Mentor:** Prof. Deepthi L")
-    st.write("**Panel Member:** Dr. G S Nagaraja")
+    
+    col_ab1, col_ab2 = st.columns([2, 1])
+    
+    with col_ab1:
+        st.markdown("#### 🎯 Project Objective")
+        st.write("To develop an AI-driven framework that bridges the gap between qualitative geopolitical events and quantitative time-series forecasting. By analyzing news sentiment and historical price trends, the system predicts structural movements in the global energy market.")
+        
+        st.markdown("#### 🚀 Phase 2 Future Scope")
+        st.markdown("""
+        - **Official Indian Data:** Integrating official PPAC and OPEC datasets for localized forecasting.
+        - **Live News Feed:** Connecting to the GDELT database and Reuters for automated 24/7 geopolitical analysis.
+        - **RAG Chatbot:** A LangChain-powered conversational AI to fetch live news, map it to our predictions, and deliver insights in natural language.
+        - **Multi-Year Forecasting:** Implementing XGBoost and Prophet for 3-5 year structural trend analysis.
+        """)
+        
+    with col_ab2:
+        st.markdown("#### 👥 Team Details")
+        st.info("""
+        **Members:**
+        - Shamit Sinha
+        - Yash Agarwal
+        - Raghav Somani
+        - Kriti Agarwal
+        """)
+        
+        st.warning("""
+        **Guidance:**
+        - **Mentor:** Prof. Deepthi L
+        - **Panel Member:** Dr. G S Nagaraja
+        """)
 
