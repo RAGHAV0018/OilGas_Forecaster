@@ -255,10 +255,13 @@ with tab4:
         st.plotly_chart(fig_sim, use_container_width=True)
         
         # Output Metrics
-        avg_base = sum(future_predictions) / len(future_predictions)
-        avg_scenario = sum(scenario_predictions) / len(scenario_predictions)
+        avg_base = float(sum(future_predictions) / len(future_predictions))
+        avg_scenario = float(sum(scenario_predictions) / len(scenario_predictions))
         
-        st.markdown(f"**Average Base Price:** ${avg_base:.2f} &nbsp;&nbsp;|&nbsp;&nbsp; **Average Scenario Price:** ${avg_scenario:.2f}")
+        col_res1, col_res2 = st.columns(2)
+        col_res1.metric("Average Base Price", f"${avg_base:.2f}")
+        col_res2.metric("Average Scenario Price", f"${avg_scenario:.2f}")
+        
         st.success(f"🇮🇳 **Estimated Indian Market Impact:** ₹{(avg_scenario * inr_usd):,.2f} per barrel")
 
 with tab5:
